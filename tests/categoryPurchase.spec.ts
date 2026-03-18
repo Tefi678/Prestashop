@@ -1,18 +1,34 @@
 import { test, expect } from '@playwright/test';
+import { HomePage } from '../pages/HomePage';
 import { ProductPage } from '../pages/ProductPage';
 
-test('Comprar artículo desde Clothes > Women', async ({ page }) => {
-  const productPage = new ProductPage(page);
-  await page.goto('/');
+test.describe('Punto 4: Navegación por Categorías', () => {
 
-  // Navegación por menú
-  await page.getByRole('link', { name: 'Clothes', exact: true }).hover();
-  await page.getByRole('link', { name: 'Women' }).click();
+  test('Debe navegar a Clothes > Women y realizar una compra', async ({ page }) => {
+    const homePage = new HomePage(page);
+    const productPage = new ProductPage(page);
 
-  await expect(page.getByRole('heading', { name: 'Women' })).toBeVisible();
-  
-  await page.locator('.product-miniature').first().click();
-  await productPage.addProductWithQuantity(1);
+    // 1. Navegar al inicio
+    await homePage.navigateTo();
 
-  await expect(page.locator('.modal-title')).toContainText('Product successfully added');
+    // 2. Usar la navegación estructurada de HomePage (maneja el hover y click)
+    await homePage.navigateToWomenCategory();
+
+    // 3. Validación de llegada a la categoría correcta
+    const categoryHeader = page.locator('.h1');
+    await expect(categoryHeader).toContainText('Women');
+
+    // 4. Seleccionar el primer producto de la lista filtrada
+    await productPage.selectProductFromList(0);
+
+    // 5. Agregar al carrito y proceder
+    await productPage.addProductWithQuantity(1);
+
+    // 6. Completar el checkout (Paso crítico para "realizar una compra")
+    await productPage.completeFullCheckout();
+
+    // 7. Validación final en el reporte
+    await expect(page.locator('#content-order-confirmation-title')).toBeVisible();
+    await expect(page.locator('#content-order-confirmation-title')).toContainText('CONFIRMED');
+  });
 });

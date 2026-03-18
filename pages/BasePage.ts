@@ -1,27 +1,25 @@
-import { Page, Locator } from '@playwright/test';
+import { Page, Locator, FrameLocator } from '@playwright/test';
 
 export class BasePage {
   readonly page: Page;
+  readonly storeFrame: FrameLocator;
 
   constructor(page: Page) {
     this.page = page;
+    this.storeFrame = page.frameLocator('#framewrap');
   }
 
   async navigateTo(path: string = '/') {
-    await this.page.goto(path);
+    await this.page.goto(path, { waitUntil: 'networkidle' });
   }
 
-  // Wrapper para mejorar la legibilidad y manejo de errores
   async clickOn(locator: Locator) {
-    await locator.waitFor({ state: 'visible' });
+    await locator.waitFor({ state: 'visible', timeout: 10000 });
     await locator.click();
   }
 
   async fillInput(locator: Locator, text: string) {
+    await locator.waitFor({ state: 'visible' });
     await locator.fill(text);
-  }
-
-  async getElementText(locator: Locator): Promise<string> {
-    return await locator.innerText();
   }
 }
