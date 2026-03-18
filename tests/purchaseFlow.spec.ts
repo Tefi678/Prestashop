@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { LoginPage } from '../../pages/LoginPage';
-import { HomePage } from '../../pages/HomePage';
+import { HomePage } from '../pages/HomePage';
 import { ProductPage } from '../../pages/ProductPage';
 
 test.describe('E2E Purchase Flow - PrestaShop', () => {
